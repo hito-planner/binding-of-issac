@@ -11,24 +11,19 @@
                 width: 100%;
                 height: 100%;
                 background-color: #000;
-                display: flex;
-                justify-content: center;
-                align-items: center;
                 overflow: hidden;
             }
 
             #game-container {
+                position: fixed;
+                top: 0;
+                left: 0;
                 width: 100vw;
                 height: 100vh;
-                max-width: 100%;
-                max-height: 100%;
-                display: flex;
-                justify-content: center;
-                align-items: center;
             }
 
-            /* Forces the Ruffle canvas to fill the container dynamically */
             ruffle-embed, ruffle-player {
+                display: block !important;
                 width: 100% !important;
                 height: 100% !important;
             }
@@ -43,14 +38,15 @@
                 const ruffle = window.RufflePlayer.newest();
                 const player = ruffle.createPlayer();
                 const container = document.getElementById("game-container");
-                
+
                 container.appendChild(player);
-                
+
+                player.style.width = "100%";
+                player.style.height = "100%";
+
                 player.load({
                     url: "thebindingofisaac.swf",
                     allowScriptAccess: true,
-                    autoplay: "on",
-                    // Tells Ruffle to scale the SWF content to fit the browser window
                     scale: "showAll",
                     letterbox: "on"
                 });
