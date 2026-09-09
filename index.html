@@ -1,0 +1,20 @@
+<body>
+    <div id="game-container" style="width: 1000px; height: 800px; margin: 0 auto;"></div>
+
+    <script>
+        window.RufflePlayer = window.RufflePlayer || {};
+        window.addEventListener("load", (event) => {
+            const ruffle = window.RufflePlayer.newest();
+            const player = ruffle.createPlayer();
+            const container = document.getElementById("game-container");
+            
+            container.appendChild(player);
+            
+            player.load({
+                url: "thebindingofisaac.swf",
+                allowScriptAccess: true,
+                autoplay: "on"
+            });
+        });
+    </script>
+</body>
