@@ -8,13 +8,27 @@
             html, body {
                 margin: 0;
                 padding: 0;
-                background-color: #000;
+                background-color: #0d0d11;
+                color: #e0e0e0;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            }
+
+            #wrapper {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding-top: 20px;
+                padding-bottom: 40px;
             }
 
             #game-container {
                 width: 1000px;
                 height: 800px;
-                margin: 0 auto;
+                background-color: #000;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+                border-radius: 8px;
+                overflow: hidden;
+                border: 1px solid #2a2a35;
             }
 
             ruffle-embed, ruffle-player {
@@ -22,30 +36,269 @@
                 width: 1000px !important;
                 height: 800px !important;
             }
+
+            /* Save Manager Toolbar Styling */
+            #save-toolbar {
+                width: 960px;
+                margin-top: 15px;
+                padding: 15px 20px;
+                background: #181820;
+                border: 1px solid #2e2e3d;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            }
+
+            .toolbar-title {
+                font-size: 16px;
+                font-weight: 600;
+                color: #e2a85c;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .button-group {
+                display: flex;
+                gap: 12px;
+                align-items: center;
+            }
+
+            .btn {
+                background-color: #2b2b3a;
+                color: #ffffff;
+                border: 1px solid #44445a;
+                padding: 9px 16px;
+                font-size: 14px;
+                font-weight: 500;
+                border-radius: 6px;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .btn:hover {
+                background-color: #3b3b50;
+                border-color: #626280;
+            }
+
+            .btn-primary {
+                background-color: #8c2828;
+                border-color: #b33636;
+            }
+
+            .btn-primary:hover {
+                background-color: #a83232;
+                border-color: #d14141;
+            }
+
+            .btn:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+
+            #sol-file-input {
+                display: none;
+            }
+
+            #status-msg {
+                font-size: 13px;
+                margin-top: 8px;
+                color: #8a8a9e;
+                text-align: center;
+                min-height: 16px;
+            }
         </style>
     </head>
     <body>
-        <div id="game-container"></div>
+        <div id="wrapper">
+            <div id="game-container"></div>
+
+            <!-- Save File Manager Control Panel -->
+            <div id="save-toolbar">
+                <div class="toolbar-title">
+                    💾 Save Manager (.sol)
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-primary" id="export-btn" onclick="downloadSaveFile()">
+                        Export / Download Save (.sol)
+                    </button>
+                    <label for="sol-file-input" class="btn" id="import-label">
+                        Import / Load Save (.sol)
+                    </label>
+                    <input type="file" id="sol-file-input" accept=".sol" onchange="uploadSaveFile(event)" />
+                </div>
+            </div>
+            <div id="status-msg">Upload or download your Flash `.sol` save data manually to bypass browser storage limits.</div>
+        </div>
 
         <script>
             window.RufflePlayer = window.RufflePlayer || {};
+            window.RufflePlayer.config = {
+                allowScriptAccess: true,
+                autoplay: "on",
+                unmuteOverlay: "hidden",
+                credentialAllowOrigin: "*",
+            };
+
+            let rufflePlayerInstance = null;
+
             window.addEventListener("load", (event) => {
                 const ruffle = window.RufflePlayer.newest();
-                const player = ruffle.createPlayer();
+                rufflePlayerInstance = ruffle.createPlayer();
                 const container = document.getElementById("game-container");
 
-                container.appendChild(player);
+                container.appendChild(rufflePlayerInstance);
 
-                player.style.width = "1000px";
-                player.style.height = "800px";
+                rufflePlayerInstance.style.width = "1000px";
+                rufflePlayerInstance.style.height = "800px";
 
-                player.load({
+                rufflePlayerInstance.load({
                     url: "thebindingofisaac.swf",
                     allowScriptAccess: true,
                     scale: "showAll",
                     letterbox: "off"
                 });
             });
+
+            // --- SAVE FILE MANAGEMENT (EXPORT / IMPORT .SOL) ---
+            //
+            // IMPORTANT: The exact key Ruffle uses inside the "so" object store
+            // depends on the movie's URL/name. Open devtools -> Application ->
+            // IndexedDB -> "#Ruffle" -> "so" once while the game is running to
+            // confirm the real key string, then update SAVE_KEY below so export
+            // and import always agree on the same slot.
+            const DB_NAME = "#Ruffle";
+            const STORE_NAME = "so";
+            const SAVE_KEY = "thebindingofisaac.swf/so";
+
+            function setStatus(msg) {
+                document.getElementById("status-msg").textContent = msg;
+            }
+
+            function setButtonsDisabled(disabled) {
+                document.getElementById("export-btn").disabled = disabled;
+                document.getElementById("import-label").style.pointerEvents = disabled ? "none" : "auto";
+            }
+
+            /**
+             * Opens the Ruffle IndexedDB database, creating the "so" object
+             * store if it doesn't exist yet (fresh profile / no save made).
+             */
+            function openRuffleDB() {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open(DB_NAME);
+
+                    request.onupgradeneeded = (event) => {
+                        const db = event.target.result;
+                        if (!db.objectStoreNames.contains(STORE_NAME)) {
+                            db.createObjectStore(STORE_NAME);
+                        }
+                    };
+
+                    request.onsuccess = (event) => resolve(event.target.result);
+                    request.onerror = (event) => reject(event.target.error || new Error("Failed to open IndexedDB"));
+                    request.onblocked = () => reject(new Error("Database open was blocked (close other tabs running this game and try again)"));
+                });
+            }
+
+            /**
+             * Extracts the save's Shared Object data from IndexedDB and downloads it as a file.
+             */
+            async function downloadSaveFile() {
+                setButtonsDisabled(true);
+                setStatus("Locating save data in browser storage...");
+
+                let db;
+                try {
+                    db = await openRuffleDB();
+
+                    if (!db.objectStoreNames.contains(STORE_NAME)) {
+                        alert("No save data found yet! Play the game for a bit or complete a room so Isaac creates a save file.");
+                        setStatus("No save data found in IndexedDB.");
+                        return;
+                    }
+
+                    const record = await new Promise((resolve, reject) => {
+                        const tx = db.transaction([STORE_NAME], "readonly");
+                        const store = tx.objectStore(STORE_NAME);
+                        const getRequest = store.get(SAVE_KEY);
+                        getRequest.onsuccess = () => resolve(getRequest.result);
+                        getRequest.onerror = () => reject(getRequest.error);
+                    });
+
+                    if (record === undefined) {
+                        alert("No save found under the expected key yet. Make sure you've started a run first, or check the SAVE_KEY constant matches what's actually in IndexedDB.");
+                        setStatus("No save file entry found for the expected key.");
+                        return;
+                    }
+
+                    const blob = new Blob([record], { type: "application/octet-stream" });
+                    const url = URL.createObjectURL(blob);
+
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = "so.sol";
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+
+                    setStatus("Save file exported successfully as so.sol!");
+                } catch (err) {
+                    console.error("Save export error:", err);
+                    alert("An error occurred while exporting save data: " + err.message);
+                    setStatus("Error exporting save file.");
+                } finally {
+                    if (db) db.close();
+                    setButtonsDisabled(false);
+                }
+            }
+
+            /**
+             * Imports a user-uploaded .sol file directly into Ruffle's IndexedDB storage and reloads the game.
+             */
+            async function uploadSaveFile(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                setButtonsDisabled(true);
+                setStatus("Importing save file...");
+
+                let db;
+                try {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const uint8Data = new Uint8Array(arrayBuffer);
+
+                    db = await openRuffleDB();
+
+                    await new Promise((resolve, reject) => {
+                        const tx = db.transaction([STORE_NAME], "readwrite");
+                        const store = tx.objectStore(STORE_NAME);
+                        store.put(uint8Data, SAVE_KEY);
+
+                        tx.oncomplete = resolve;
+                        tx.onerror = () => reject(tx.error);
+                        tx.onabort = () => reject(tx.error || new Error("Transaction aborted"));
+                    });
+
+                    setStatus("Save imported! Reloading...");
+                    alert("Save file (.sol) imported successfully! Reloading game...");
+                    location.reload();
+                } catch (err) {
+                    console.error("Save import error:", err);
+                    alert("Failed to write save file to browser storage: " + err.message);
+                    setStatus("Error importing save file.");
+                } finally {
+                    if (db) db.close();
+                    setButtonsDisabled(false);
+                    event.target.value = ""; // allow re-selecting the same file later
+                }
+            }
         </script>
     </body>
 </html>
