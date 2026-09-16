@@ -3,7 +3,23 @@
     <head>
         <title>The Binding of Isaac</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <script>
+            window.RufflePlayer = window.RufflePlayer || {};
+            window.RufflePlayer.config = {
+                allowScriptAccess: true,
+                autoplay: "on",
+                unmuteOverlay: "hidden",
+                
+                quality: "medium",
+                preferredRenderer: "canvas",
+                forceScaleFactor: true,
+                maxFrameRate: 60
+            };
+        </script>
+
         <script src="ruffle/ruffle.js"></script>
+
         <style>
             html, body {
                 margin: 0;
@@ -36,13 +52,6 @@
         <div id="game-container"></div>
 
         <script>
-            window.RufflePlayer = window.RufflePlayer || {};
-            window.RufflePlayer.config = {
-                allowScriptAccess: true,
-                autoplay: "on",
-                unmuteOverlay: "hidden",
-            };
-
             window.addEventListener("load", () => {
                 const ruffle = window.RufflePlayer.newest();
                 const player = ruffle.createPlayer();
