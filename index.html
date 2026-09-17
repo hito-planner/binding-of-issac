@@ -4,32 +4,6 @@
         <title>The Binding of Isaac</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <script>
-            window.RufflePlayer = window.RufflePlayer || {};
-            window.RufflePlayer.config = {
-                // --- Performance Settings ---
-                preferredRenderer: null,
-                quality: "low",
-                wmode: "direct",
-                frameRate: 30,
-                // --- Loading & Behavior ---
-                autoplay: "on",
-                unmuteOverlay: "hide",
-                splashScreen: false,
-                allowScriptAccess: true,
-                allowNetworking: "all",
-                openUrlMode: "allow",
-                // --- Display & UI ---
-                letterbox: "on",
-                scale: "showAll",
-                forceScale: false,
-                menu: true,
-        
-                // --- System ---
-                logLevel: "error"
-            };
-        </script>
-
         <script src="ruffle/ruffle.js"></script>
 
         <style>
@@ -75,9 +49,29 @@
 
                 player.load({
                     url: "thebindingofisaac.swf",
+
+                    // --- Performance Settings ---
+                    preferredRenderer: null,
+                    quality: "low",
+                    wmode: "direct",
+                    frameRate: 30,
+
+                    // --- Loading & Behavior ---
+                    autoplay: "on",
+                    unmuteOverlay: "hidden",
+                    splashScreen: false,
                     allowScriptAccess: true,
+                    allowNetworking: "all",
+                    openUrlMode: "allow",
+
+                    // --- Display & UI ---
+                    letterbox: "off",
                     scale: "showAll",
-                    letterbox: "off"
+                    forceScale: false,
+                    menu: true,
+
+                    // --- System ---
+                    logLevel: "error"
                 });
             });
         </script>
