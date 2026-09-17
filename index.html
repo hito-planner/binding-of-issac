@@ -30,8 +30,8 @@
             }
 
             #game-container {
-                width: 800px;
-                height: 600px;
+                width: 640px;
+                height: 480px;
                 background-color: #000;
                 box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
                 border-radius: 8px;
@@ -41,8 +41,8 @@
 
             ruffle-embed, ruffle-player {
                 display: block !important;
-                width: 800px !important;
-                height: 600px !important;
+                width: 640px !important;
+                height: 480px !important;
             }
         </style>
     </head>
@@ -55,8 +55,8 @@
                 const player = ruffle.createPlayer();
                 document.getElementById("game-container").appendChild(player);
 
-                player.style.width = "800px";
-                player.style.height = "600px";
+                player.style.width = "640px";
+                player.style.height = "480px";
 
                 player.load({
                     url: "thebindingofisaac.swf",
