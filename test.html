@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>The Binding of Isaac (Defaults)</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <script src="ruffle/ruffle.js"></script>
+
+        <style>
+            html, body {
+                margin: 0;
+                padding: 0;
+                background-color: #0d0d11;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+            }
+
+            #game-container {
+                width: 800px;
+                height: 600px;
+                background-color: #000;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+                border-radius: 8px;
+                overflow: hidden;
+                border: 1px solid #2a2a35;
+            }
+
+            ruffle-embed, ruffle-player {
+                display: block !important;
+                width: 800px !important;
+                height: 600px !important;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="game-container"></div>
+
+        <script>
+            window.addEventListener("load", () => {
+                const ruffle = window.RufflePlayer.newest();
+                const player = ruffle.createPlayer();
+                document.getElementById("game-container").appendChild(player);
+
+                player.style.width = "800px";
+                player.style.height = "600px";
+
+                player.load({
+                    url: "thebindingofisaac.swf",
+
+                    allowScriptAccess: true,
+                    autoplay: "on",
+                    unmuteOverlay: "hidden",
+                    scale: "showAll",
+                    menu: true
+                });
+            });
+        </script>
+    </body>
+</html>
