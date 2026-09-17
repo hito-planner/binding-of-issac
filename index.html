@@ -8,16 +8,16 @@
             window.RufflePlayer = window.RufflePlayer || {};
             window.RufflePlayer.config = {
                 // --- Performance Settings ---
-                preferredRenderer: "webgl",  // GPU hardware acceleration
-                quality: "low",             // Disables vector anti-aliasing
-                wmode: "opaque",            // Removes canvas transparency math
+                preferredRenderer: "webgl",
+                quality: "low",
+                wmode: "direct",
                 frameRate: 30,
                 // --- Loading & Behavior ---
                 autoplay: "on",
                 unmuteOverlay: "hide",
                 splashScreen: false,
                 allowScriptAccess: true,
-                allowNetworking: "none",
+                allowNetworking: "all",
                 openUrlMode: "allow",
                 // --- Display & UI ---
                 letterbox: "on",
