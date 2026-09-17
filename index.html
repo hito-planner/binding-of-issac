@@ -7,12 +7,26 @@
         <script>
             window.RufflePlayer = window.RufflePlayer || {};
             window.RufflePlayer.config = {
-                allowScriptAccess: true,
+                // --- Performance Settings ---
+                preferredRenderer: "webgl",  // GPU hardware acceleration
+                quality: "low",             // Disables vector anti-aliasing
+                wmode: "opaque",            // Removes canvas transparency math
+                frameRate: 30,
+                // --- Loading & Behavior ---
                 autoplay: "on",
-                unmuteOverlay: "hidden",
-
-                preferredRenderer: "webgl",
-                quality: "high",
+                unmuteOverlay: "hide",
+                splashScreen: false,
+                allowScriptAccess: true,
+                allowNetworking: "none",
+                openUrlMode: "allow",
+                // --- Display & UI ---
+                letterbox: "on",
+                scale: "showAll",
+                forceScale: false,
+                menu: true,
+        
+                // --- System ---
+                logLevel: "error"
             };
         </script>
 
