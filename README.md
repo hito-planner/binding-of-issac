@@ -1,10 +1,12 @@
-# The Binding of Isaac (Flash, via Ruffle)
+# The Binding of Isaac
 
 **Version:** 1.0
 
-A minimal, self-hosted page that runs the original Flash version of *The Binding of Isaac* in the browser using [Ruffle](https://ruffle.rs), an open-source Flash Player emulator.
+A minimal, self-hosted page that runs the original Flash version of *The Binding of Isaac (Wrath of the Lamb)* in the browser using [Ruffle](https://ruffle.rs), an open-source Flash Player emulator.
 
 This project is intentionally minimalistic — after extensive testing, no custom renderer, quality, or resolution settings were found to meaningfully improve performance or stability over Ruffle's own defaults, so the page simply lets Ruffle run as-is.
+
+[Site Link](https://hito-planner.github.io/binding-of-issac/)
 
 ## Features
 
